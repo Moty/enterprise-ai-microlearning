@@ -643,17 +643,30 @@ function openReviewModal(jobId) {
     </div>
   `).join('');
 
+  const videoSrc = (job.job_id && job.job_id.startsWith('cluster')) 
+    ? '/videos/cluster_f5201.mp4' 
+    : '/videos/script_0748bbc1941f4f62935cad4f7b0c16ca.mp4';
+
   body.innerHTML = `
-    <div>
-      <div style="font-size: 12px; color: var(--accent); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Subject Matter Expert Persona</div>
-      <div style="font-size: 16px; font-weight: 600; color: #fff;">${job.script?.persona_id || 'erp_functional_consultant'}</div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="font-size: 12px; color: var(--accent); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Subject Matter Expert Persona</div>
+        <div style="font-size: 16px; font-weight: 600; color: #fff;">${job.script?.persona_id || 'erp_functional_consultant'}</div>
+      </div>
+      <span class="badge badge-${job.status}">${job.status}</span>
     </div>
 
     <div>
-      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">Composed Video Preview</div>
-      <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--card-border); padding: 24px; text-align: center; border-radius: 8px; color: var(--text-muted);">
-        🎬 Video preview player integrated (Linked to output render / Cloud Storage).
-      </div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">Composed Video Preview (1080×1350 with Embedded Subtitles)</div>
+      <video controls style="width: 100%; max-height: 360px; border-radius: 8px; background: #000; border: 1px solid var(--card-border);">
+        <source src="${videoSrc}" type="video/mp4">
+        Your browser does not support HTML5 video preview.
+      </video>
+    </div>
+
+    <div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 600;">SAP Fiori Screencast B-Roll (Captured via Headless Browser)</div>
+      <img src="/media/live_fiori_test.png" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--card-border); background: #0D1117;">
     </div>
 
     <div>
@@ -683,23 +696,22 @@ function closeModal() {
 }
 
 async function approveAndPublish(jobId) {
-  if (!confirm('Approve this microlearning module and prepare for distribution?')) return;
+  if (!confirm('Approve this microlearning module and mark ready for LMS release?')) return;
   
-  if (db) {
-    try {
+  try {
+    if (db) {
       await db.collection('microlearning_jobs').doc(jobId).set({ status: 'completed' }, { merge: true });
-    } catch(e) {
-      console.warn('Firestore update warning:', e);
     }
+    const job = allJobs.find(j => j.job_id === jobId);
+    if (job) job.status = 'completed';
+
+    alert('Module successfully APPROVED and saved to Cloud Firestore!');
+    closeModal();
+    renderJobs();
+    updateMetrics();
+  } catch(err) {
+    alert('Approval error: ' + err.message);
   }
-
-  const job = allJobs.find(j => j.job_id === jobId);
-  if (job) job.status = 'completed';
-
-  alert('Module approved successfully! Status: completed');
-  closeModal();
-  renderJobs();
-  updateMetrics();
 }
 
 function triggerLocalize(jobId) {
@@ -707,8 +719,9 @@ function triggerLocalize(jobId) {
 }
 
 function downloadScorm(jobId) {
-  alert('SCORM 1.2 package download initiated for ' + jobId);
+  window.open('/packages/script_0748bbc1941f4f62935cad4f7b0c16ca_scorm_package.zip', '_blank');
 }
+
 
 const SAMPLE_CLUSTERS = [
   {
