@@ -100,14 +100,15 @@ For the complete technical breakdown, see [docs/ARCHITECTURE.md](docs/ARCHITECTU
 │   │   ├── topic_ingestion.py         # Autonomous SAP catalog & RSS crawler
 │   │   ├── localization.py            # Multi-language translation & localized WebVTT
 │   │   ├── screen_recorder.py         # Headless browser SAP Fiori capture & simulation
-│   │   └── analytics.py               # Viewership telemetry, retention scoring & hook tuning
+│   │   ├── analytics.py               # Viewership telemetry, retention scoring & hook tuning
+│   │   └── ticket_deflection.py       # Support ticket clustering, ROI calculation & auto-deflection
 │   ├── dashboard/                     # Human-in-the-loop SME Review & Approval web portal
 │   │   └── app.py                     # FastAPI REST API & Single-Page Application
 │   └── publishers/                    # Distribution channels
 │       ├── linkedin_publisher.py      # Direct REST API & package generator
 │       ├── scorm_packager.py          # SCORM 1.2/2004 zip archive & HTML5 player
 │       └── webhook_publisher.py       # MS Teams MessageCard & Slack Block Kit
-├── tests/                             # Comprehensive test suite (88 automated tests)
+├── tests/                             # Comprehensive test suite (98 automated tests)
 │   ├── test_adversarial_hardening.py  # Security, concurrency & edge-case tests
 │   ├── test_asset_generator.py        # Pygments & Pillow card generation
 │   ├── test_core.py                   # Schemas, Pydantic validators & configs
@@ -118,6 +119,7 @@ For the complete technical breakdown, see [docs/ARCHITECTURE.md](docs/ARCHITECTU
 │   ├── test_publishers.py             # LinkedIn publisher REST API
 │   ├── test_repositories.py           # Local JSON & Cloud Firestore repositories
 │   ├── test_screen_and_analytics.py   # Screen recorder & telemetry
+│   ├── test_ticket_deflection.py      # Support ticket clustering & deflection tests
 │   └── test_topic_ingestion.py        # Curated catalog & RSS parsing
 ├── samples/
 │   └── sample_scripts/                # Production-ready test scripts
@@ -169,19 +171,32 @@ Simulate or publish live to LinkedIn with video stream and lead magnet comment:
 python main.py publish-linkedin <job_id> --first-comment-link "https://example.com/guide.pdf" --dry-run
 ```
 
-### 6. Multi-Language Localization
+### 6. Automated Support Ticket Deflection ('Ticket-to-Tutorial')
+Analyze IT support desk tickets (ServiceNow, Jira Service Management, CSV/JSON), cluster repetitive user errors, calculate financial ROI, and autonomously generate 60s self-service video tutorials with service desk KB articles:
+```bash
+# Analyze tickets and view projected monthly dollar & hour savings
+python main.py analyze-tickets --min-frequency 2
+
+# Ingest custom ticket exports
+python main.py analyze-tickets --input-file exports/servicenow_incidents.json
+
+# Autonomously synthesize video tutorial, KB article, and IT helpdesk webhook for a cluster
+python main.py deflect-ticket --cluster-id cluster_f5201 --dry-run --export-scorm
+```
+
+### 7. Multi-Language Localization
 Localize any video module into German, Spanish, French, or Japanese with multi-track closed captions:
 ```bash
 python main.py localize <job_id> --languages de,es,fr,ja --export-scorm --dry-run
 ```
 
-### 7. Headless SAP Fiori Demo Capture
+### 8. Headless SAP Fiori Demo Capture
 Capture high-definition SAP Fiori 3.0 / Horizon theme screencasts for video B-roll:
 ```bash
 python main.py record-demo --error-code M7021 --output output/fiori_demo.png --dry-run
 ```
 
-### 8. Analytics Feedback Loop & Hook Optimizer
+### 9. Analytics Feedback Loop & Hook Optimizer
 Record viewership telemetry and review retention benchmarks and hook improvement recommendations:
 ```bash
 # Record viewer telemetry
@@ -191,20 +206,20 @@ python main.py record-analytics <job_id> --views 2500 --completions 1950 --watch
 python main.py analytics-report --persona sap_architect
 ```
 
-### 9. Job History & State Inspection
+### 10. Job History & State Inspection
 ```bash
 python main.py list-jobs --limit 10
 python main.py get-job <job_id>
 ```
 
-### 10. Enterprise SME Review & Approval Web Dashboard
+### 11. Enterprise SME Review & Approval Web Dashboard
 Launch the web-based human-in-the-loop review portal with video player, script editor, and one-click publishing:
 ```bash
 python main.py dashboard --host 127.0.0.1 --port 8000
 ```
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 
-### 11. Cloud Deployment & Firebase Hosting
+### 12. Cloud Deployment & Firebase Hosting
 The Enterprise SME Review Portal is deployed and hosted on Google Cloud & Firebase:
 * **Live Hosting URL:** [https://imoshin-microlearning.web.app](https://imoshin-microlearning.web.app)
 * **Cloud Firestore Database:** Native Firestore in `us-central1` on project `imoshin-microlearning`

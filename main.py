@@ -19,6 +19,7 @@ from src.pipeline.localization import LocalizationEngine
 from src.pipeline.screen_recorder import ScreenRecorderEngine
 from src.pipeline.topic_ingestion import TopicIngestionEngine
 from src.pipeline.voice_engine import VoiceEngine
+from src.pipeline.ticket_deflection import TicketDeflectionEngine
 from src.publishers import LinkedInPublisher, ScormPackager, WebhookPublisher
 
 
@@ -435,6 +436,92 @@ def analytics_report(persona_id: str = typer.Option("sap_architect", "--persona"
     console.print("[bold magenta]🎯 Hook Optimization Recommendations:[/bold magenta]")
     for r in recs:
         console.print(f" • {r}")
+
+
+@app.command()
+def analyze_tickets(
+    input_file: Optional[Path] = typer.Option(None, "--input-file", "-f", help="Path to support ticket export (.json or .csv)"),
+    min_frequency: int = typer.Option(2, "--min-frequency", "-m", help="Minimum ticket count to form a deflection cluster"),
+):
+    """Analyzes enterprise support tickets, clusters repetitive issues, and computes deflection ROI."""
+    engine = TicketDeflectionEngine()
+    if input_file:
+        console.print(f"[cyan]Ingesting enterprise tickets from {input_file}...[/cyan]")
+        tickets = engine.ingest_from_file(input_file)
+    else:
+        console.print("[cyan]Loading built-in enterprise support ticket catalog (ServiceNow/Jira)...[/cyan]")
+        tickets = engine.get_sample_tickets()
+
+    clusters = engine.cluster_tickets(tickets, min_frequency=min_frequency)
+
+    table = Table(title=f"Support Ticket Deflection Analysis ({len(tickets)} tickets -> {len(clusters)} clusters)")
+    table.add_column("Cluster ID", style="cyan", no_wrap=True)
+    table.add_column("Error / Pattern", style="yellow")
+    table.add_column("Category", style="white")
+    table.add_column("Count", style="magenta")
+    table.add_column("Priority", style="bold red")
+    table.add_column("Proj. Monthly Savings", style="bold green")
+    table.add_column("Hours Saved", style="green")
+
+    total_savings = 0.0
+    total_hours = 0.0
+    for c in clusters:
+        total_savings += c.projected_monthly_savings_usd
+        total_hours += c.projected_hours_saved_monthly
+        table.add_row(
+            c.cluster_id,
+            c.primary_error_code or "N/A",
+            c.category,
+            str(c.ticket_count),
+            c.deflection_priority,
+            f"${c.projected_monthly_savings_usd:,.2f}",
+            f"{c.projected_hours_saved_monthly:.1f} hrs",
+        )
+
+    console.print(table)
+    console.print(f"\n[bold green]💰 Total Projected Monthly Deflection Savings:[/bold green] ${total_savings:,.2f}")
+    console.print(f"[bold green]⏱️ Total Projected Support Time Saved:[/bold green] {total_hours:.1f} hours / month\n")
+    console.print("[dim]Run 'python main.py deflect-ticket --cluster-id <cluster_id>' to generate a 60s microlearning solution.[/dim]")
+
+
+@app.command()
+def deflect_ticket(
+    cluster_id: str = typer.Option("cluster_f5201", "--cluster-id", "-c", help="Cluster ID to deflect"),
+    input_file: Optional[Path] = typer.Option(None, "--input-file", "-f", help="Path to support ticket export (.json or .csv)"),
+    export_scorm: bool = typer.Option(True, "--export-scorm/--no-export-scorm", help="Package for Enterprise LMS (SCORM 1.2)"),
+    dry_run: bool = typer.Option(True, "--dry-run/--no-dry-run", help="Run in dry-run mode without external API charges"),
+):
+    """Autonomously synthesizes a 60-second microlearning tutorial and KB article to deflect a ticket cluster."""
+    engine = TicketDeflectionEngine()
+    if input_file:
+        tickets = engine.ingest_from_file(input_file)
+    else:
+        tickets = engine.get_sample_tickets()
+
+    clusters = engine.cluster_tickets(tickets, min_frequency=1)
+    target_cluster = next((c for c in clusters if c.cluster_id.lower() == cluster_id.lower()), None)
+    if not target_cluster:
+        console.print(f"[bold red]Cluster not found:[/bold red] {cluster_id}")
+        console.print(f"Available clusters: {', '.join(c.cluster_id for c in clusters)}")
+        raise typer.Exit(code=1)
+
+    console.print(f"[bold blue]🚀 Deflecting Support Ticket Cluster:[/bold blue] {target_cluster.title}")
+    console.print(f"[cyan]Projected Monthly Savings: ${target_cluster.projected_monthly_savings_usd:,.2f} ({target_cluster.projected_hours_saved_monthly} hrs)[/cyan]\n")
+
+    res = engine.generate_deflection_tutorial(
+        cluster=target_cluster,
+        dry_run=dry_run,
+        export_scorm=export_scorm,
+    )
+
+    console.print("[bold green]✔ Ticket Deflection Package Created Successfully![/bold green]")
+    console.print(f" • [cyan]Job ID:[/cyan] {res['job_id']}")
+    console.print(f" • [green]Video Tutorial:[/green] {res['video_path']}")
+    console.print(f" • [green]Subtitles:[/green] {res['subtitles_path']}")
+    console.print(f" • [magenta]Knowledge Base Article:[/magenta] {res['kb_article_path']}")
+    if res.get("scorm_package_path"):
+        console.print(f" • [yellow]LMS SCORM Package:[/yellow] {res['scorm_package_path']}")
+    console.print("\n[dim]IT Helpdesk Webhook notification ready for Teams/Slack.[/dim]")
 
 
 @app.command()

@@ -9,6 +9,7 @@ from .topic_ingestion import TopicIngestionEngine
 from .localization import LocalizationEngine
 from .screen_recorder import ScreenRecorderEngine
 from .analytics import AnalyticsEngine
+from .ticket_deflection import TicketDeflectionEngine, SupportTicket, TicketCluster
 
 __all__ = [
     "ScriptGenerator",
@@ -20,6 +21,9 @@ __all__ = [
     "LocalizationEngine",
     "ScreenRecorderEngine",
     "AnalyticsEngine",
+    "TicketDeflectionEngine",
+    "SupportTicket",
+    "TicketCluster",
 ]
 
 

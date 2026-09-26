@@ -18,6 +18,7 @@ from src.pipeline.localization import LocalizationEngine
 from src.publishers.linkedin_publisher import LinkedInPublisher
 from src.publishers.scorm_packager import ScormPackager
 from src.publishers.webhook_publisher import WebhookPublisher
+from src.pipeline.ticket_deflection import TicketDeflectionEngine
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +171,33 @@ def get_analytics_report():
     """Retrieves executive retention telemetry report across all modules."""
     analytics = AnalyticsEngine()
     return analytics.get_summary_report()
+
+
+@app.get("/api/tickets/clusters")
+def list_ticket_clusters(min_frequency: int = 2):
+    """Retrieves grouped enterprise support ticket clusters with deflection ROI metrics."""
+    engine = TicketDeflectionEngine()
+    tickets = engine.get_sample_tickets()
+    clusters = engine.cluster_tickets(tickets, min_frequency=min_frequency)
+    return [c.model_dump(mode="json") for c in clusters]
+
+
+@app.post("/api/tickets/deflect/{cluster_id}")
+def deflect_ticket_cluster(cluster_id: str, dry_run: bool = True, export_scorm: bool = True):
+    """Triggers autonomous microlearning video, KB article, and deflection package generation."""
+    engine = TicketDeflectionEngine()
+    tickets = engine.get_sample_tickets()
+    clusters = engine.cluster_tickets(tickets, min_frequency=1)
+    target = next((c for c in clusters if c.cluster_id.lower() == cluster_id.lower()), None)
+    if not target:
+        raise HTTPException(status_code=404, detail=f"Ticket cluster '{cluster_id}' not found.")
+
+    result = engine.generate_deflection_tutorial(
+        cluster=target,
+        dry_run=dry_run,
+        export_scorm=export_scorm,
+    )
+    return result
 
 
 @app.get("/", response_class=HTMLResponse)
