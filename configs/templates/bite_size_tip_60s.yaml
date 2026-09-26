@@ -1,0 +1,33 @@
+template_id: "bite_size_tip_60s"
+name: "60-Second SAP Microlearning Fix"
+target_duration_seconds: 60
+structure:
+  - name: "hook"
+    duration_range_sec: [0, 4]
+    goal: "Arrest the scroll on LinkedIn. Call out a specific high-frequency error, costly architectural anti-pattern, or productivity leak."
+    visual_direction: "Avatar direct eye contact, rapid zoom-in (1.0x to 1.15x), headline text in bold red/gold."
+  - name: "problem_context"
+    duration_range_sec: [4, 15]
+    goal: "State the business or technical consequence. Why does this error happen? What is the impact (production halt, broken upgrade, delayed billing)?"
+    visual_direction: "Cut to SAP GUI / Fiori screencast showing the error banner or code failure with a red spotlight bounding box."
+  - name: "step_by_step_solution"
+    duration_range_sec: [15, 48]
+    goal: "Deliver 3 rapid, actionable steps with specific T-Codes, menu paths, or syntax. No fluff."
+    visual_direction: "Split screen or PIP: avatar in bottom corner narrating while screencast zooms into each click and input field."
+  - name: "call_to_action"
+    duration_range_sec: [48, 60]
+    goal: "Prompt engagement: save for later, share with their SAP project team, or comment to get the step-by-step PDF cheat sheet."
+    visual_direction: "Avatar full screen, clean graphic card showing downloadable checklist, company branding, and 'Save this post' icon."
+post_copy_template: |
+  🚨 Struggling with {topic_title}?
+  
+  Here is the quick breakdown of why this happens and how to resolve it in under 60 seconds.
+  
+  📌 Key Takeaways:
+  1. {step_1_summary}
+  2. {step_2_summary}
+  3. {step_3_summary}
+  
+  💬 Have you encountered this on your current project? Drop your thoughts or workarounds below!
+  
+  #SAP #S4HANA #EnterpriseSoftware #{relevant_hashtag}
