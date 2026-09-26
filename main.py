@@ -53,6 +53,8 @@ def generate(
     persona: str = typer.Option("sap_architect", "--persona", "-p", help="Persona ID"),
     error_code: Optional[str] = typer.Option(None, "--error-code", "-e", help="Specific SAP Error Code or T-Code (e.g. M7021, SM59)"),
     layout: str = typer.Option("linkedin_portrait", "--layout", "-l", help="Layout: linkedin_portrait (4:5), vertical (9:16), widescreen (16:9)"),
+    avatar_provider: Optional[str] = typer.Option(None, "--avatar-provider", help="Avatar engine: seedance, hedra, heygen, mock"),
+    render_video: bool = typer.Option(True, "--render-video/--no-render-video", help="Execute real local FFmpeg video compositing"),
     export_scorm: bool = typer.Option(True, "--export-scorm/--no-export-scorm", help="Package for Enterprise LMS (SCORM 1.2)"),
     dry_run: bool = typer.Option(True, "--dry-run/--no-dry-run", help="Run without calling paid external APIs"),
 ):
@@ -101,16 +103,18 @@ def generate(
     console.print(f"[green]✔ Audio track duration: {audio_track.duration_seconds}s ({len(audio_track.word_timestamps)} words timed).[/green]")
 
     # 4. Avatar Animation & Lip-Sync
-    console.print("[cyan]Step 4: Animating AI-SME avatar with lip-sync...[/cyan]")
-    avatar_engine = AvatarEngine()
+    resolved_provider = avatar_provider or settings.AVATAR_PROVIDER
+    console.print(f"[cyan]Step 4: Animating AI-SME avatar with {resolved_provider} engine...[/cyan]")
+    avatar_engine = AvatarEngine(provider_name=resolved_provider)
     avatar_video_path = job_dir / f"{script.script_id}_avatar.mp4"
     avatar_engine.animate_avatar(
         seed_image_path=Path(persona_config.visual_profile.avatar_seed_image),
         audio_file_path=audio_path,
         output_video_path=avatar_video_path,
+        duration_seconds=audio_track.duration_seconds,
         dry_run=dry_run,
     )
-    console.print("[green]✔ Avatar animation processed.[/green]")
+    console.print(f"[green]✔ Avatar animation processed ({avatar_video_path}).[/green]")
 
     # 5. Multi-Layer Video Composition
     console.print("[cyan]Step 5: Compositing video with kinetic captions & layout...[/cyan]")
@@ -126,13 +130,15 @@ def generate(
         script=script,
         layout=layout_enum,
     )
+    composite_dry_run = dry_run and not render_video
     composited_job = compositor.composite(
         job=job,
         audio_track=audio_track,
         avatar_video_path=avatar_video_path,
         screen_asset_path=slide_path,
-        dry_run=dry_run,
+        dry_run=composite_dry_run,
     )
+
     console.print(f"[green]✔ Subtitles generated at: {composited_job.subtitles_file_path}[/green]")
     console.print(f"[green]✔ Final video package rendered at: {composited_job.output_file_path}[/green]")
     console.print(f"[green]✔ FFmpeg render script ready at: {job_dir / 'render_ffmpeg.sh'}[/green]")

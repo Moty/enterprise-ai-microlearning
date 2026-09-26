@@ -28,8 +28,12 @@ class AppSettings(BaseSettings):
     ELEVENLABS_API_KEY: str = ""
 
     # LipSync / Avatar Settings
+    AVATAR_PROVIDER: Literal["mock", "seedance", "hedra", "heygen", "liveportrait"] = "mock"
+    SEEDANCE_API_KEY: str = ""
+    SEEDANCE_API_URL: str = "https://api.bytedance.com/v1/seedance"
     HEDRA_API_KEY: str = ""
     HEYGEN_API_KEY: str = ""
+    REPLICATE_API_TOKEN: str = ""
 
     # LinkedIn Distribution
     LINKEDIN_ACCESS_TOKEN: str = ""
@@ -39,8 +43,10 @@ class AppSettings(BaseSettings):
         "ANTHROPIC_API_KEY",
         "GOOGLE_API_KEY",
         "ELEVENLABS_API_KEY",
+        "SEEDANCE_API_KEY",
         "HEDRA_API_KEY",
         "HEYGEN_API_KEY",
+        "REPLICATE_API_TOKEN",
         "LINKEDIN_ACCESS_TOKEN",
         "LINKEDIN_AUTHOR_URN",
         "FIREBASE_PROJECT_ID",
@@ -48,6 +54,7 @@ class AppSettings(BaseSettings):
         "FIRESTORE_COLLECTION_JOBS",
         mode="before",
     )
+
     @classmethod
     def strip_whitespace(cls, v: str) -> str:
         return v.strip() if isinstance(v, str) else v

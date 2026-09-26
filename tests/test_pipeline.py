@@ -143,6 +143,37 @@ class TestPipeline(unittest.TestCase):
             self.assertEqual(meta["status"], "simulated")
             self.assertTrue(output_video.exists())
 
+    def test_seedance_avatar_provider_dry_run(self):
+        """Verify Seedance provider creates multimodal video metadata."""
+        from src.pipeline.avatar_engine import SeedanceAvatarProvider
+        provider = SeedanceAvatarProvider(api_key="test_key")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            seed = tmp_path / "marcus.png"
+            audio = tmp_path / "speech.wav"
+            out = tmp_path / "seedance_out.mp4"
+
+            provider.generate_avatar_video(seed, audio, out, dry_run=True)
+            meta = json.loads(out.with_suffix(".meta.json").read_text(encoding="utf-8"))
+            self.assertEqual(meta["provider"], "seedance")
+            self.assertEqual(meta["model_version"], "seedance-2.5")
+            self.assertIn("authoritative", meta["motion_prompt"])
+
+    def test_avatar_engine_provider_resolution(self):
+        """Verify AvatarEngine factory properly selects providers."""
+        from src.pipeline.avatar_engine import (
+            AvatarEngine,
+            SeedanceAvatarProvider,
+            HedraAvatarProvider,
+            HeyGenAvatarProvider,
+            HighFidelityMockAvatarProvider,
+        )
+        self.assertIsInstance(AvatarEngine("seedance").provider, SeedanceAvatarProvider)
+        self.assertIsInstance(AvatarEngine("hedra").provider, HedraAvatarProvider)
+        self.assertIsInstance(AvatarEngine("heygen").provider, HeyGenAvatarProvider)
+        self.assertIsInstance(AvatarEngine("mock").provider, HighFidelityMockAvatarProvider)
+
+
     def test_generate_srt_subtitles_format(self):
         """Verify standard SubRip SRT block formatting."""
         timestamps = [
