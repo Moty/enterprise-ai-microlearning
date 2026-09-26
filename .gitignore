@@ -22,11 +22,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.pytest_cache/
 
 # Virtualenv
 .env
 .env.local
 *.env
+
+# Firebase Cache
+.firebase/
 
 # Media output & Cache
 output/

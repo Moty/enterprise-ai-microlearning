@@ -1,8 +1,8 @@
 """Data contracts and schemas for the Enterprise AI Microlearning Engine."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 
@@ -54,11 +54,12 @@ class VideoScript(BaseModel):
     script_id: str
     topic: str
     persona_id: str
+    language: str = "en"
     duration_target_seconds: int = 60
     sections: List[ScriptSection]
     hashtags: List[str] = Field(default_factory=list)
     post_caption: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class WordTimestamp(BaseModel):
@@ -84,7 +85,22 @@ class VideoRenderJob(BaseModel):
     script: VideoScript
     layout: VideoLayout = VideoLayout.LINKEDIN_PORTRAIT_4_5
     fps: int = 30
-    status: Literal["pending", "audio_generated", "avatar_rendered", "composited", "failed"] = "pending"
+    status: Literal[
+        "pending",
+        "generating_audio",
+        "audio_generated",
+        "animating",
+        "avatar_rendered",
+        "compositing",
+        "composited",
+        "completed",
+        "failed",
+    ] = "pending"
     output_file_path: Optional[str] = None
     subtitles_file_path: Optional[str] = None
+    vtt_subtitles_file_path: Optional[str] = None
+    additional_vtt_tracks: Dict[str, str] = Field(default_factory=dict)
+    localized_scripts: Dict[str, VideoScript] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     error_message: Optional[str] = None
+

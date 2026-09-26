@@ -1,7 +1,8 @@
 """Application configuration and environment settings."""
 
-import os
 from pathlib import Path
+from typing import Literal
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +12,12 @@ class AppSettings(BaseSettings):
     CONFIG_DIR: Path = BASE_DIR / "configs"
     OUTPUT_DIR: Path = BASE_DIR / "output"
     ASSETS_DIR: Path = BASE_DIR / "assets"
+
+    # Storage & Persistence Backend ('local' or 'firestore')
+    STORAGE_BACKEND: Literal["local", "firestore"] = "local"
+    FIREBASE_PROJECT_ID: str = ""
+    FIRESTORE_DATABASE_ID: str = "(default)"
+    FIRESTORE_COLLECTION_JOBS: str = "microlearning_jobs"
 
     # LLM Settings
     LLM_PROVIDER: str = "anthropic"  # 'anthropic' or 'google'
@@ -27,6 +34,23 @@ class AppSettings(BaseSettings):
     # LinkedIn Distribution
     LINKEDIN_ACCESS_TOKEN: str = ""
     LINKEDIN_AUTHOR_URN: str = ""
+
+    @field_validator(
+        "ANTHROPIC_API_KEY",
+        "GOOGLE_API_KEY",
+        "ELEVENLABS_API_KEY",
+        "HEDRA_API_KEY",
+        "HEYGEN_API_KEY",
+        "LINKEDIN_ACCESS_TOKEN",
+        "LINKEDIN_AUTHOR_URN",
+        "FIREBASE_PROJECT_ID",
+        "FIRESTORE_DATABASE_ID",
+        "FIRESTORE_COLLECTION_JOBS",
+        mode="before",
+    )
+    @classmethod
+    def strip_whitespace(cls, v: str) -> str:
+        return v.strip() if isinstance(v, str) else v
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -1,6 +1,6 @@
 """Avatar Animation and Lip-Sync Subsystem."""
 
-import os
+import json
 from pathlib import Path
 from typing import Optional
 from src.core.config import settings
@@ -22,15 +22,26 @@ class AvatarEngine:
         """
         Generates a synchronized speaking avatar video from a static portrait and audio track.
         """
+        output_video_path = Path(output_video_path)
         output_video_path.parent.mkdir(parents=True, exist_ok=True)
 
         if dry_run or not (settings.HEDRA_API_KEY or settings.HEYGEN_API_KEY):
             # In dry-run mode, create a placeholder video or metadata marker
             meta_path = output_video_path.with_suffix(".meta.json")
+            metadata = {
+                "seed_image": str(seed_image_path),
+                "audio": str(audio_file_path),
+                "status": "simulated"
+            }
             with open(meta_path, "w", encoding="utf-8") as f:
-                f.write(f'{{"seed_image": "{seed_image_path}", "audio": "{audio_file_path}", "status": "simulated"}}')
+                json.dump(metadata, f, indent=2)
+
+            if not output_video_path.exists():
+                output_video_path.touch()
+
             return output_video_path
 
         # Production integration point for Hedra / LivePortrait API
         # e.g., requests.post to Hedra video generation endpoint
         return output_video_path
+

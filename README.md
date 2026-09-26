@@ -87,57 +87,146 @@ For the complete technical breakdown, see [docs/ARCHITECTURE.md](docs/ARCHITECTU
 │   └── templates/                     # 60s microlearning script templates
 │       └── bite_size_tip_60s.yaml
 ├── src/
-│   ├── core/                          # Configuration and Pydantic data schemas
+│   ├── core/                          # Configuration, Pydantic schemas, and repositories
 │   │   ├── config.py
-│   │   └── models.py
+│   │   ├── models.py
+│   │   └── repositories.py            # Pluggable Local JSON & Cloud Firestore storage
 │   ├── pipeline/                      # Core processing pipeline
-│   │   ├── ideation.py                # Script and hook generation
-│   │   ├── voice_engine.py            # ElevenLabs / TTS audio generator
+│   │   ├── ideation.py                # Script and hook generation (Claude/Gemini)
+│   │   ├── asset_generator.py         # Pillow/Pygments title cards & code highlights
+│   │   ├── voice_engine.py            # ElevenLabs / TTS audio with SAP phonetics
 │   │   ├── avatar_engine.py           # Avatar animation and lip-sync
-│   │   └── compositor.py              # Multi-layer video compositor with captions
-│   └── publishers/                    # Automated publishing modules
-│       └── linkedin_publisher.py
+│   │   ├── compositor.py              # Multi-layout FFmpeg compositor (SRT & WebVTT)
+│   │   ├── topic_ingestion.py         # Autonomous SAP catalog & RSS crawler
+│   │   ├── localization.py            # Multi-language translation & localized WebVTT
+│   │   ├── screen_recorder.py         # Headless browser SAP Fiori capture & simulation
+│   │   └── analytics.py               # Viewership telemetry, retention scoring & hook tuning
+│   ├── dashboard/                     # Human-in-the-loop SME Review & Approval web portal
+│   │   └── app.py                     # FastAPI REST API & Single-Page Application
+│   └── publishers/                    # Distribution channels
+│       ├── linkedin_publisher.py      # Direct REST API & package generator
+│       ├── scorm_packager.py          # SCORM 1.2/2004 zip archive & HTML5 player
+│       └── webhook_publisher.py       # MS Teams MessageCard & Slack Block Kit
+├── tests/                             # Comprehensive test suite (88 automated tests)
+│   ├── test_adversarial_hardening.py  # Security, concurrency & edge-case tests
+│   ├── test_asset_generator.py        # Pygments & Pillow card generation
+│   ├── test_core.py                   # Schemas, Pydantic validators & configs
+│   ├── test_dashboard.py              # SME Review Portal & REST API tests
+│   ├── test_enterprise_publishers.py  # SCORM packaging & Webhooks
+│   ├── test_localization.py           # Multi-language translation & WebVTT
+│   ├── test_pipeline.py               # End-to-end pipeline & phonetics
+│   ├── test_publishers.py             # LinkedIn publisher REST API
+│   ├── test_repositories.py           # Local JSON & Cloud Firestore repositories
+│   ├── test_screen_and_analytics.py   # Screen recorder & telemetry
+│   └── test_topic_ingestion.py        # Curated catalog & RSS parsing
 ├── samples/
 │   └── sample_scripts/                # Production-ready test scripts
-│       ├── 01_sap_m7021_inventory_error.md
-│       └── 02_clean_core_extensibility_in_60s.md
 ├── requirements.txt
 └── pyproject.toml
 ```
 
 ---
 
-## 🚀 Quickstart
+## 🚀 CLI Usage & Workflows
 
-### Prerequisites
-* Python 3.11+
-* FFmpeg installed on system path (`brew install ffmpeg`)
-* API Keys for LLM (Anthropic / Google Gemini) and Voice (ElevenLabs)
-
-### Installation
+### 1. Autonomous Topic Ingestion & Batch Production
+Ingest high-impact SAP error notes or live Community RSS blogs and batch-produce ready-to-publish microlearning modules:
 ```bash
-# Clone the repository
-git clone https://github.com/Moty/enterprise-ai-microlearning.git
-cd enterprise-ai-microlearning
+# View curated enterprise topics
+python main.py list-topics --limit 5
 
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
+# Batch produce 3 modules autonomously (with SCORM packages & LinkedIn drafts)
+python main.py auto-ingest --source catalog --limit 3 --dry-run
 ```
 
-### Configuration
-Copy `.env.example` to `.env` and fill in your API credentials:
+### 2. Single Video Generation
+Generate a single tailored 60s video with dynamic overlays and subtitles:
 ```bash
-LLM_PROVIDER=anthropic            # or google
-ANTHROPIC_API_KEY=your_key_here
-ELEVENLABS_API_KEY=your_key_here
-OUTPUT_DIR=./output
+python main.py generate \
+  --topic "Deficit of SL Unrestricted-Use Stock" \
+  --error-code "M7021" \
+  --persona "erp_functional_consultant" \
+  --layout "linkedin_portrait" \
+  --export-scorm
 ```
+
+### 3. Enterprise LMS Export (SCORM 1.2 / 2004)
+Package any historical or rendered job into a standards-compliant SCORM zip:
+```bash
+python main.py package-scorm <job_id>
+```
+
+### 4. Microsoft Teams & Slack Notifications
+Notify internal enterprise teams of a new microlearning drop:
+```bash
+python main.py notify-channel <job_id> --channel teams --dry-run
+python main.py notify-channel <job_id> --channel slack --dry-run
+```
+
+### 5. LinkedIn Direct Publishing
+Simulate or publish live to LinkedIn with video stream and lead magnet comment:
+```bash
+python main.py publish-linkedin <job_id> --first-comment-link "https://example.com/guide.pdf" --dry-run
+```
+
+### 6. Multi-Language Localization
+Localize any video module into German, Spanish, French, or Japanese with multi-track closed captions:
+```bash
+python main.py localize <job_id> --languages de,es,fr,ja --export-scorm --dry-run
+```
+
+### 7. Headless SAP Fiori Demo Capture
+Capture high-definition SAP Fiori 3.0 / Horizon theme screencasts for video B-roll:
+```bash
+python main.py record-demo --error-code M7021 --output output/fiori_demo.png --dry-run
+```
+
+### 8. Analytics Feedback Loop & Hook Optimizer
+Record viewership telemetry and review retention benchmarks and hook improvement recommendations:
+```bash
+# Record viewer telemetry
+python main.py record-analytics <job_id> --views 2500 --completions 1950 --watch-time 53.2 --hook-dropoff 0.07
+
+# Executive retention benchmark & hook tuning report
+python main.py analytics-report --persona sap_architect
+```
+
+### 9. Job History & State Inspection
+```bash
+python main.py list-jobs --limit 10
+python main.py get-job <job_id>
+```
+
+### 10. Enterprise SME Review & Approval Web Dashboard
+Launch the web-based human-in-the-loop review portal with video player, script editor, and one-click publishing:
+```bash
+python main.py dashboard --host 127.0.0.1 --port 8000
+```
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+
+### 11. Cloud Deployment & Firebase Hosting
+The Enterprise SME Review Portal is deployed and hosted on Google Cloud & Firebase:
+* **Live Hosting URL:** [https://imoshin-microlearning.web.app](https://imoshin-microlearning.web.app)
+* **Cloud Firestore Database:** Native Firestore in `us-central1` on project `imoshin-microlearning`
+* **Custom Subdomain:** Add `learn.imoshin.com` in the Firebase Console under **Hosting > Add Custom Domain**.
+
+To deploy updates to Firebase:
+```bash
+npx -y firebase-tools@latest deploy --only firestore,hosting --project imoshin-microlearning
+```
+
+---
+
+## 🧪 Testing
+
+Run the exhaustive test suite covering all modules:
+```bash
+pytest -v
+```
+
 
 ---
 
 ## 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
