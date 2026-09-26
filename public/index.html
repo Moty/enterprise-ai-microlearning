@@ -391,6 +391,34 @@
       <button class="tab-btn" onclick="setFilter('composited', this)">Composited</button>
       <button class="tab-btn" onclick="setFilter('completed', this)">Approved</button>
       <button class="tab-btn" onclick="setFilter('failed', this)">Failed</button>
+      <button class="tab-btn" id="btn-deflection" onclick="toggleDeflectionView(this)" style="border-color: rgba(245, 158, 11, 0.4); color: #FBBF24;">🎫 Ticket Deflection ROI</button>
+    </div>
+  </div>
+
+  <!-- Ticket Deflection ROI View (Hidden by default) -->
+  <div id="deflection-view" style="display: none; margin-bottom: 32px;">
+    <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(0, 112, 242, 0.1)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <div style="font-size: 13px; color: #FBBF24; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Support Ticket Deflection Engine ('Ticket-to-Tutorial')</div>
+          <div style="font-size: 20px; font-weight: 700; color: #fff; margin-top: 4px;">Automated L1/L2 Enterprise Support Ticket Deflection</div>
+          <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Ingests ServiceNow/Jira tickets, clusters recurring issues, and generates 60s microlearning tutorials.</div>
+        </div>
+        <div style="display: flex; gap: 20px;">
+          <div style="text-align: right;">
+            <div style="font-size: 12px; color: var(--text-muted);">Est. Monthly Savings</div>
+            <div style="font-size: 24px; font-weight: 700; color: #34D399;">$24,300</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 12px; color: var(--text-muted);">Hours Saved Monthly</div>
+            <div style="font-size: 24px; font-weight: 700; color: #38BDF8;">225 hrs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px;" id="clusters-container">
+      <!-- Clustered tickets will render dynamically -->
     </div>
   </div>
 
@@ -682,6 +710,92 @@ function downloadScorm(jobId) {
   alert('SCORM 1.2 package download initiated for ' + jobId);
 }
 
+const SAMPLE_CLUSTERS = [
+  {
+    cluster_id: "cluster_m7021",
+    title: "SAP Error M7021: Deficit of SL Unrestricted-Use Stock in MIGO",
+    category: "SAP MM / Logistics",
+    error_code: "M7021",
+    ticket_count: 120,
+    monthly_savings: "$5,400",
+    hours_saved: "50 hrs",
+    persona: "David Chen (Supply Chain & MM Specialist)",
+    quick_fix: "Check MMBE stock category. If in inspection, execute QA11 usage decision or MB1B 321 transfer."
+  },
+  {
+    cluster_id: "cluster_sm59",
+    title: "SAP SM59: RFC Destination Timeout & SSL Handshake Failure",
+    category: "SAP BTP / Basis & Integration",
+    error_code: "SM59",
+    ticket_count: 180,
+    monthly_savings: "$8,100",
+    hours_saved: "75 hrs",
+    persona: "Marcus Vance (SAP Enterprise Architect)",
+    quick_fix: "Verify STRUST root CA cert validity, test connection via ST01 trace, update SNI handshake profile."
+  },
+  {
+    cluster_id: "cluster_fiori_404",
+    title: "SAP Fiori Launchpad Horizon Tile 404 & UI5 Cache Invalidation",
+    category: "SAP Fiori / Frontend",
+    error_code: "HTTP_404_UI5",
+    ticket_count: 240,
+    monthly_savings: "$10,800",
+    hours_saved: "100 hrs",
+    persona: "Elena Rostova (Fiori & UI5 Senior Dev)",
+    quick_fix: "Run /UI2/INVALIDATE_CLIENT_CACHES and refresh /UI5/UPD_CUSTOM_EXT application index in SM30."
+  }
+];
+
+let showingDeflection = false;
+
+function toggleDeflectionView(el) {
+  showingDeflection = !showingDeflection;
+  const defView = document.getElementById('deflection-view');
+  const tableCard = document.querySelector('.jobs-table-card');
+  
+  if (showingDeflection) {
+    defView.style.display = 'block';
+    tableCard.style.display = 'none';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderClusters();
+  } else {
+    defView.style.display = 'none';
+    tableCard.style.display = 'block';
+    el.classList.remove('active');
+    document.querySelector('.tab-btn').classList.add('active');
+    currentFilter = 'all';
+    renderJobs();
+  }
+}
+
+function renderClusters() {
+  const container = document.getElementById('clusters-container');
+  container.innerHTML = SAMPLE_CLUSTERS.map(c => `
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4);">${c.error_code}</span>
+          <span style="font-size: 11px; color: var(--text-muted);">${c.category}</span>
+        </div>
+        <div style="font-weight: 600; font-size: 15px; color: #fff; line-height: 1.4;">${escapeHtml(c.title)}</div>
+        <div style="font-size: 12px; color: var(--accent); margin-top: 6px;">Recommended SME: ${c.persona}</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.5; background: #11151D; padding: 10px; border-radius: 6px;">
+          💡 <strong>Resolution:</strong> ${escapeHtml(c.quick_fix)}
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--card-border); pt-3; display: flex; justify-content: space-between; align-items: center; padding-top: 12px;">
+        <div>
+          <div style="font-size: 11px; color: var(--text-muted);">Est. Monthly Impact</div>
+          <div style="font-size: 14px; font-weight: 700; color: #34D399;">${c.monthly_savings} <span style="font-weight: 400; color: var(--text-muted); font-size: 11px;">(${c.hours_saved})</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="alert('Synthesizing 60s microlearning tutorial for ${c.error_code} with SCORM 1.2 package...')">🎬 Synthesize 60s Fix</button>
+      </div>
+    </div>
+  `).join('');
+}
+
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -689,6 +803,7 @@ function escapeHtml(str) {
 
 window.onload = loadJobs;
 </script>
+
 
 </body>
 </html>
