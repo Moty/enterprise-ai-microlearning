@@ -27,13 +27,15 @@
       --accent: #38BDF8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    html, body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
     header {
       background: #161B22;
@@ -102,6 +104,7 @@
       padding: 32px 24px;
       width: 100%;
       flex: 1;
+      overflow-x: hidden;
     }
     .metrics-grid {
       display: grid;
@@ -261,6 +264,8 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      max-width: 100vw;
+      overflow-x: hidden;
     }
     .modal {
       background: #161B22;
@@ -270,6 +275,7 @@
       max-width: 920px;
       max-height: 90vh;
       overflow-y: auto;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       box-shadow: 0 24px 48px rgba(0,0,0,0.6);
@@ -279,7 +285,27 @@
       border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    #modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+    .modal-close-btn {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      line-height: 1;
+      font-size: 16px;
+      min-width: 36px;
+      min-height: 36px;
+      display: inline-flex;
       align-items: center;
+      justify-content: center;
     }
     .modal-body {
       padding: 24px;
@@ -337,6 +363,280 @@
     }
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+
+    /* Mobile & Responsive Optimizations */
+    @media (max-width: 768px) {
+      header {
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .brand {
+        gap: 10px;
+      }
+      .brand-logo {
+        padding: 5px 10px;
+        font-size: 13px;
+      }
+      .brand-title {
+        font-size: 15px;
+        line-height: 1.25;
+      }
+      .brand-sub {
+        font-size: 11px;
+        line-height: 1.3;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .status-pill {
+        font-size: 11px;
+        padding: 4px 8px;
+      }
+      .container {
+        padding: 16px 12px;
+      }
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .metric-card {
+        padding: 12px 14px;
+        gap: 4px;
+        border-radius: 10px;
+      }
+      .metric-title {
+        font-size: 10.5px;
+      }
+      .metric-value {
+        font-size: 22px;
+      }
+      .metric-subtitle {
+        font-size: 10.5px;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 16px;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .search-input {
+        min-width: 0;
+        width: 100%;
+        font-size: 16px; /* Prevents auto-zoom in iOS Safari */
+        padding: 10px 14px;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      .filter-tabs {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        box-sizing: border-box;
+      }
+      .filter-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .tab-btn {
+        flex-shrink: 0;
+        padding: 8px 14px;
+        font-size: 12px;
+        min-height: 38px;
+      }
+
+      /* Mobile Card-Stack Table Transformation */
+      .jobs-table-card {
+        background: transparent;
+        border: none;
+        overflow: visible;
+      }
+      table, thead, tbody, tr, th, td {
+        display: block;
+        width: 100%;
+      }
+      thead {
+        display: none;
+      }
+      tbody tr {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+      tbody td {
+        padding: 0;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+      }
+      tbody td:first-child {
+        display: block;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 8px;
+        margin-bottom: 2px;
+      }
+      tbody td:first-child > div:first-child {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.35;
+        margin-bottom: 4px;
+      }
+      tbody td:first-child > div:last-child {
+        font-size: 11px;
+        word-break: break-all;
+      }
+      tbody td:nth-child(2)::before {
+        content: "Persona";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:nth-child(3)::before {
+        content: "Layout";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:nth-child(4)::before {
+        content: "Status";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:nth-child(5)::before {
+        content: "Created";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:last-child {
+        display: block;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 10px;
+        margin-top: 4px;
+      }
+      tbody td:last-child button {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+        font-size: 14px;
+        border-radius: 8px;
+      }
+      tbody tr td[colspan] {
+        display: block;
+        text-align: center;
+        padding: 24px 12px;
+      }
+      tbody tr td[colspan]::before {
+        display: none !important;
+      }
+
+      /* Modal Bottom Sheet */
+      .modal-backdrop {
+        padding: 0;
+        align-items: flex-end;
+      }
+      .modal {
+        max-height: 92vh;
+        border-radius: 16px 16px 0 0;
+        border-bottom: none;
+        width: 100%;
+      }
+      .modal-header {
+        padding: 14px 18px;
+        position: sticky;
+        top: 0;
+        background: #161B22;
+        z-index: 10;
+        border-bottom: 1px solid var(--card-border);
+      }
+      .modal-body {
+        padding: 16px;
+        gap: 16px;
+      }
+      .modal-footer {
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        position: sticky;
+        bottom: 0;
+        background: #11161D;
+        z-index: 10;
+        border-top: 1px solid var(--card-border);
+      }
+      .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+        font-size: 14px;
+      }
+
+      /* Ticket Deflection Cluster View Mobile */
+      .deflection-header-card {
+        padding: 16px 14px !important;
+      }
+      .deflection-header-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+      }
+      .deflection-header-stats {
+        width: 100% !important;
+        justify-content: space-between !important;
+        border-top: 1px solid rgba(245, 158, 11, 0.2) !important;
+        padding-top: 12px !important;
+      }
+      #clusters-container {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+      }
+      .cluster-card-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+      }
+      .cluster-card-footer button {
+        width: 100% !important;
+        justify-content: center !important;
+        min-height: 44px !important;
+      }
+
+      footer {
+        padding: 16px 12px;
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+        font-size: 11px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -397,14 +697,14 @@
 
   <!-- Ticket Deflection ROI View (Hidden by default) -->
   <div id="deflection-view" style="display: none; margin-bottom: 32px;">
-    <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(0, 112, 242, 0.1)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div class="deflection-header-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(0, 112, 242, 0.1)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+      <div class="deflection-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
           <div style="font-size: 13px; color: #FBBF24; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Support Ticket Deflection Engine ('Ticket-to-Tutorial')</div>
           <div style="font-size: 20px; font-weight: 700; color: #fff; margin-top: 4px;">Automated L1/L2 Enterprise Support Ticket Deflection</div>
           <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Ingests ServiceNow/Jira tickets, clusters recurring issues, and generates 60s microlearning tutorials.</div>
         </div>
-        <div style="display: flex; gap: 20px;">
+        <div class="deflection-header-stats" style="display: flex; gap: 20px;">
           <div style="text-align: right;">
             <div style="font-size: 12px; color: var(--text-muted);">Est. Monthly Savings</div>
             <div style="font-size: 24px; font-weight: 700; color: #34D399;">$24,300</div>
@@ -445,8 +745,8 @@
 <div class="modal-backdrop" id="review-modal">
   <div class="modal">
     <div class="modal-header">
-      <div style="font-weight: 700; font-size: 18px;" id="modal-title">Review Module</div>
-      <button class="btn btn-outline" style="padding: 4px 8px;" onclick="closeModal()">✕</button>
+      <div id="modal-title">Review Module</div>
+      <button class="btn btn-outline modal-close-btn" onclick="closeModal()" aria-label="Close modal">✕</button>
     </div>
     <div class="modal-body" id="modal-content">
       <!-- Dynamic Content -->
@@ -785,7 +1085,7 @@ function toggleDeflectionView(el) {
 function renderClusters() {
   const container = document.getElementById('clusters-container');
   container.innerHTML = SAMPLE_CLUSTERS.map(c => `
-    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
+    <div class="cluster-card" style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
       <div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
           <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4);">${c.error_code}</span>
@@ -798,7 +1098,7 @@ function renderClusters() {
         </div>
       </div>
 
-      <div style="border-top: 1px solid var(--card-border); pt-3; display: flex; justify-content: space-between; align-items: center; padding-top: 12px;">
+      <div class="cluster-card-footer" style="border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; padding-top: 12px;">
         <div>
           <div style="font-size: 11px; color: var(--text-muted);">Est. Monthly Impact</div>
           <div style="font-size: 14px; font-weight: 700; color: #34D399;">${c.monthly_savings} <span style="font-weight: 400; color: var(--text-muted); font-size: 11px;">(${c.hours_saved})</span></div>

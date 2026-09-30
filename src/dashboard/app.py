@@ -228,13 +228,15 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       --accent: #00B4D8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    html, body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
     header {
       background: #18202C;
@@ -273,6 +275,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       padding: 32px 24px;
       width: 100%;
       flex: 1;
+      overflow-x: hidden;
     }
     .metrics-grid {
       display: grid;
@@ -414,6 +417,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       align-items: center;
       justify-content: center;
       padding: 20px;
+      max-width: 100vw;
+      overflow-x: hidden;
     }
     .modal {
       background: #18202C;
@@ -423,6 +428,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       max-width: 900px;
       max-height: 90vh;
       overflow-y: auto;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5);
@@ -432,7 +438,27 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    #modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+    .modal-close-btn {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      line-height: 1;
+      font-size: 16px;
+      min-width: 36px;
+      min-height: 36px;
+      display: inline-flex;
       align-items: center;
+      justify-content: center;
     }
     .modal-body {
       padding: 24px;
@@ -479,6 +505,245 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       background: #000;
       border: 1px solid var(--card-border);
     }
+
+    /* Mobile & Responsive Optimizations */
+    @media (max-width: 768px) {
+      header {
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .brand {
+        gap: 10px;
+      }
+      .brand-logo {
+        padding: 5px 10px;
+        font-size: 13px;
+      }
+      .brand-title {
+        font-size: 15px;
+        line-height: 1.25;
+      }
+      .brand-sub {
+        font-size: 11px;
+        line-height: 1.3;
+      }
+      .header-actions {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+      .header-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .container {
+        padding: 16px 12px;
+      }
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .metric-card {
+        padding: 12px 14px;
+        gap: 4px;
+        border-radius: 10px;
+      }
+      .metric-title {
+        font-size: 10.5px;
+      }
+      .metric-value {
+        font-size: 22px;
+      }
+      .metric-subtitle {
+        font-size: 10.5px;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 16px;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .search-input {
+        min-width: 0;
+        width: 100%;
+        font-size: 16px; /* Prevents auto-zoom in iOS Safari */
+        padding: 10px 14px;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      .filter-tabs {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        box-sizing: border-box;
+      }
+      .filter-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .tab-btn {
+        flex-shrink: 0;
+        padding: 8px 14px;
+        font-size: 12px;
+        min-height: 38px;
+      }
+
+      /* Mobile Card-Stack Table Transformation */
+      .jobs-table-card {
+        background: transparent;
+        border: none;
+        overflow: visible;
+      }
+      table, thead, tbody, tr, th, td {
+        display: block;
+        width: 100%;
+      }
+      thead {
+        display: none;
+      }
+      tbody tr {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+      tbody td {
+        padding: 0;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+      }
+      tbody td:first-child {
+        display: block;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 8px;
+        margin-bottom: 2px;
+      }
+      tbody td:first-child > div:first-child {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.35;
+        margin-bottom: 4px;
+      }
+      tbody td:first-child > div:last-child {
+        font-size: 11px;
+        word-break: break-all;
+      }
+      tbody td:nth-child(2)::before {
+        content: "Persona";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:nth-child(3)::before {
+        content: "Layout";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:nth-child(4)::before {
+        content: "Status";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:nth-child(5)::before {
+        content: "Created";
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+      }
+      tbody td:last-child {
+        display: block;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 10px;
+        margin-top: 4px;
+      }
+      tbody td:last-child button {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+        font-size: 14px;
+        border-radius: 8px;
+      }
+      tbody tr td[colspan] {
+        display: block;
+        text-align: center;
+        padding: 24px 12px;
+      }
+      tbody tr td[colspan]::before {
+        display: none !important;
+      }
+
+      /* Modal Bottom Sheet */
+      .modal-backdrop {
+        padding: 0;
+        align-items: flex-end;
+      }
+      .modal {
+        max-height: 92vh;
+        border-radius: 16px 16px 0 0;
+        border-bottom: none;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      .modal-header {
+        padding: 14px 18px;
+        position: sticky;
+        top: 0;
+        background: #18202C;
+        z-index: 10;
+        border-bottom: 1px solid var(--card-border);
+      }
+      .modal-body {
+        padding: 16px;
+        gap: 16px;
+      }
+      .modal-footer {
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        position: sticky;
+        bottom: 0;
+        background: #151A24;
+        z-index: 10;
+        border-top: 1px solid var(--card-border);
+      }
+      .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -491,7 +756,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       <div class="brand-sub">Human-in-the-Loop Quality Gate & Multi-Channel Distribution Hub</div>
     </div>
   </div>
-  <div>
+  <div class="header-actions">
     <button class="btn btn-outline" onclick="loadJobs()">⟳ Refresh Queue</button>
   </div>
 </header>
@@ -553,8 +818,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
 <div class="modal-backdrop" id="review-modal">
   <div class="modal">
     <div class="modal-header">
-      <div style="font-weight: 700; font-size: 18px;" id="modal-title">Review Module</div>
-      <button class="btn btn-outline" style="padding: 4px 8px;" onclick="closeModal()">✕</button>
+      <div id="modal-title">Review Module</div>
+      <button class="btn btn-outline modal-close-btn" onclick="closeModal()" aria-label="Close modal">✕</button>
     </div>
     <div class="modal-body" id="modal-content">
       <!-- Dynamic Content -->
